@@ -5,7 +5,8 @@ const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
 const path = require('path');
 
-app.use(express.static('public')); 
+app.set('views', __dirname + '/views');
+app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {
     res.redirect('/about');
