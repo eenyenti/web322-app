@@ -1,12 +1,12 @@
 const express = require('express');
+const path = require('path');
 const store = require('./store-service');
 const app = express();
 
 const HTTP_PORT = process.env.PORT || 8080;
-const path = require('path');
 
-app.set('views', __dirname + '/views');
-app.use(express.static(__dirname + '/public'));
+app.set('views', __dirname + '/views')
+app.use(express.static(__dirname + '/public'))
 
 app.get('/', (req, res) => {
     res.redirect('/about');
@@ -60,5 +60,5 @@ store.initialize()
   app.listen(HTTP_PORT, () => console.log(`Express http server listening on ${HTTP_PORT}`));
 })
 .catch(()=>{ 
-  console.log('Failed to load resources :(')
+  console.log('Failed to load resources :(');
 });

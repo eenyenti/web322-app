@@ -15,19 +15,19 @@ let categories = [];
 //         return Promise.reject("Error reading or parsing the files");
 //     }
 // }
-function initialize() {
-    return fs.readFile(path.join(__dirname, 'data', 'items.json'), 'utf8')
-        .then(data => {
-            items = JSON.parse(data);
-            return fs.readFile(path.join(__dirname, 'data', 'categories.json'), 'utf8');
-        })
-        .then(data => {
-            categories = JSON.parse(data);
-            return 'Initialization successful';
-        })
-        .catch(err => {
-            throw new Error("Unable to read JSON files: " + err.message);
-        });
+async function initialize() {
+    return fs.readFile('data/items.json', 'utf8')
+    .then(data => {
+        items = JSON.parse(data);
+        return fs.readFile('data/categories.json', 'utf8');
+    })
+    .then(data => {
+        categories = JSON.parse(data);
+        return 'Initialized.';
+    })
+    .catch(err => {
+        throw new Error("Cannot open file.", err);
+    });
 }
 
 function getAllItems() {
