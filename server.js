@@ -1,7 +1,30 @@
+/*********************************************************************************
+WEB322 – Assignment 02
+I declare that this assignment is my own work in accordance with Seneca Academic Policy.  
+No part of this assignment has been copied manually or electronically from any other source (including 3rd party web sites) or distributed to other students.
+
+Name: Elthan Nyenti
+Student ID: 118460237
+Date: 16 February 2025
+Vercel Web App URL: web322-app-rho.vercel.app
+GitHub Repository URL: https://github.com/eenyenti/web322-app
+
+********************************************************************************/ 
+
+/*
+Cloud name: dl7airznk
+API Key: 538186999491745
+API Secret: hiZjrudYe598WRg_Bt-uNkZduqQ
+*/
+
 const express = require('express');
 const path = require('path');
 const store = require('./store-service');
 const app = express();
+
+const multer = require("multer");
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
 
 const HTTP_PORT = process.env.PORT || 8080;
 
@@ -14,6 +37,10 @@ app.get('/', (req, res) => {
 
 app.get('/about', (req, res) => {
 res.sendFile(path.join(__dirname, 'views/about.html'));
+});
+
+app.get('/items/add', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/addItem.html'));
 });
 
 app.get('/shop', (req, res) => {
