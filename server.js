@@ -11,12 +11,6 @@ GitHub Repository URL: https://github.com/eenyenti/web322-app
 
 ********************************************************************************/ 
 
-/*
-Cloud name: dl7airznk
-API Key: 538186999491745
-API Secret: hiZjrudYe598WRg_Bt-uNkZduqQ
-*/
-
 const express = require('express');
 const path = require('path');
 const store = require('./store-service');
