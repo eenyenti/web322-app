@@ -1,15 +1,17 @@
 /*********************************************************************************
-WEB322 – Assignment 02
-I declare that this assignment is my own work in accordance with Seneca Academic Policy.  
-No part of this assignment has been copied manually or electronically from any other source (including 3rd party web sites) or distributed to other students.
-
-Name: Elthan Nyenti
-Student ID: 118460237
-Date: 16 February 2025
-Vercel Web App URL: web322-app-rho.vercel.app
-GitHub Repository URL: https://github.com/eenyenti/web322-app
-
+*  WEB322 – Assignment 03
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part 
+*  of this assignment has been copied manually or electronically from any other source 
+*  (including 3rd party web sites) or distributed to other students.
+* 
+*  Name: Elthan Nyenti       Student ID: 118460237       Date: 15 March 2025
+*
+*  Vercel Web App URL: web322-app-rho.vercel.app
+* 
+*  GitHub Repository URL: https://github.com/eenyenti/web322-app
+*
 ********************************************************************************/ 
+
 
 const express = require('express');
 const path = require('path');
@@ -49,15 +51,45 @@ app.get('/shop', (req, res) => {
 });
 
 app.get('/items', (req, res) => {
-  // res.send('This is items');
-  store.getAllItems()
-  .then(items => {
-    res.json(items);
-  })
-  .catch(err => {
-    res.status(500).json({ message: err }); 
-  });
+  let { category, minDate } = req.query;
+
+  if (category) {
+    
+    category = parseInt(category, 10);
+    if (![1, 2, 3, 4, 5].includes(category)) {
+      return res.status(400).json({ message: "Invalid category value. Must be between 1 and 5." });
+    }
+
+    store.getItemsByCategory(category)
+      .then(items => res.json(items))
+      .catch(err => res.status(500).json({ message: err }));
+  }
+  else if (minDate) {
+    // Ensures minDate is a valid format
+    if (isNaN(new Date(minDate).getTime())) {
+      return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD." });
+    }
+
+    store.getItemsByMinDate(minDate)
+      .then(items => res.json(items))
+      .catch(err => res.status(500).json({ message: err }));
+  }
+  else {
+    // Returns all items if no filters
+    store.getAllItems()
+      .then(items => res.json(items))
+      .catch(err => res.status(500).json({ message: err }));
+  }
 });
+
+app.get('/item/:id', (req, res) => {
+  const { id } = req.params;
+
+  store.getItemById(id)
+    .then(item => res.json(item))
+    .catch(err => res.status(404).json({ message: `Item with id ${id} not found` }));
+});
+
 
 app.get('/categories', (req, res) => {
   // res.send('This is categories');
@@ -134,8 +166,6 @@ app.post("/items/add", upload.single("featureImage"), async (req, res) => {
     .catch((err) => res.status(500).send("Your add items don't work buddy"))
   }
 });
-
-
 
 /********************************************************************************/
 
