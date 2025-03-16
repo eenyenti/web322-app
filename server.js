@@ -12,7 +12,6 @@
 *
 ********************************************************************************/ 
 
-
 const express = require('express');
 const path = require('path');
 const store = require('./store-service');
@@ -157,14 +156,15 @@ app.post("/items/add", upload.single("featureImage"), async (req, res) => {
     processItem("");
   }
   
-  function processItem(req, imageUrl) {
+  function processItem(imageUrl){
     req.body.featureImage = imageUrl;
     
-    // TODO: Process the req.body and add it as a new item
-    addItem(req.body)
+    // TODO: Process the req.body and add it as a new Item before redirecting to /items
+    store.addItem(req.body)
     .then(() => res.redirect("/items"))
     .catch((err) => res.status(500).send("Your add items don't work buddy"))
-  }
+} 
+
 });
 
 /********************************************************************************/
