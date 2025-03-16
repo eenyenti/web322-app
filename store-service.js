@@ -93,7 +93,7 @@ module.exports =
     getAllItems,
     getPublishedItems,
     getCategories,
-    addItem, // this one doesn't work
+    addItem,
     getItemsByCategory,
     getItemsByMinDate,
     getItemById
