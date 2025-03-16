@@ -43,10 +43,58 @@ function getCategories() {
     }
 }
 
+function addItem(itemData) {
+    return new Promise((resolve, reject) => {
+        if (itemData.published === "" || itemData.published === undefined) {
+            itemData.published = false;
+        }
+        else {
+            itemData.published = true;
+        }
+        itemData.id = items.length + 1;
+    
+        items.push(itemData);
+    
+        resolve(itemData);
+    });
+}
+
+function getItemsByCategory(category) {
+    let categoryItems = items.filter(item => item.category === category);
+    if (categoryItems.length > 0) {
+        return Promise.resolve(categoryItems);
+    } else {
+        return Promise.reject('No results returned for category ' + category);
+    }
+}
+
+function getItemsByMinDate(minDateStr) {
+    let dateItems = items.filter(item => new Date(item.postDate) >= new Date(minDateStr));
+    if (dateItems.length > 0) {
+        return Promise.resolve(dateItems);
+    } else {
+        return Promise.reject('No results returned for date ' + minDateStr);
+    }
+}
+
+function getItemById(id) {
+    let item = items.find(item => item.id === id);
+    if (item) {
+        return Promise.resolve(item);
+    } else {
+        return Promise.reject('No result returned for id ' + id);
+    }
+}
+
+
 module.exports = 
 {
     initialize,
     getAllItems,
     getPublishedItems,
-    getCategories
+    getCategories,
+    addItem, // this one don't work
+    getItemsByCategory,
+    getItemsByMinDate,
+    getItemById
 }
