@@ -23,20 +23,33 @@ const HTTP_PORT = process.env.PORT || 8080;
 
 // Paths and directories
 
-app.set('views', __dirname + '/views')
-app.use(express.static(__dirname + '/public'))
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {
-    res.redirect('/about');
+  res.redirect('/about');
+});
+
+  // app.get('/about', (req, res) => {
+  //   res.sendFile(path.join(__dirname, 'views/about.html'));
+  // });
+  app.get('/about', (req, res) => {
+    res.render('about');
+  });
+    
+  // app.get('/items/add', (req, res) => {
+  //   res.sendFile(path.join(__dirname, 'views/addItem.html'));
+  // });
+  app.get('/items/add', (req, res) => {
+    res.render('addItem');
   });
 
-app.get('/about', (req, res) => {
-res.sendFile(path.join(__dirname, 'views/about.html'));
+app.use((req, res, next) => {
+  res.locals.activeRoute = req.originalUrl;
+  next();
 });
 
-app.get('/items/add', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views/addItem.html'));
-});
 
 app.get('/shop', (req, res) => {
   // res.send('This is shopping');
@@ -52,6 +65,8 @@ app.get('/shop', (req, res) => {
 app.get('/items', (req, res) => {
   let { category, minDate } = req.query;
 
+  let message = "No items found.";
+
   if (category) {
     
     category = parseInt(category, 10);
@@ -59,8 +74,16 @@ app.get('/items', (req, res) => {
       return res.status(400).json({ message: "Invalid category value. Must be between 1 and 5." });
     }
 
+    // store.getItemsByCategory(category)
+    //   .then(items => res.json(items))
+    //   .catch(err => res.status(500).json({ message: err }));
     store.getItemsByCategory(category)
-      .then(items => res.json(items))
+      .then(items => {
+        if (items.length === 0) {
+          return res.render('items', { items, message });
+        }
+        res.render('items', { items });
+      })
       .catch(err => res.status(500).json({ message: err }));
   }
   else if (minDate) {
@@ -69,18 +92,35 @@ app.get('/items', (req, res) => {
       return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD." });
     }
 
+    // store.getItemsByMinDate(minDate)
+    //   .then(items => res.json(items))
+    //   .catch(err => res.status(500).json({ message: err }));
     store.getItemsByMinDate(minDate)
-      .then(items => res.json(items))
+      .then(items => {
+        if (items.length === 0) {
+          return res.render('items', { items, message });
+        }
+        res.render('items', { items });
+      })
       .catch(err => res.status(500).json({ message: err }));
   }
   else {
     // Returns all items if no filters
+    // store.getAllItems()
+    //   .then(items => res.json(items))
+    //   .catch(err => res.status(500).json({ message: err }));
     store.getAllItems()
-      .then(items => res.json(items))
+      .then(items => {
+        if (items.length === 0) {
+          return res.render('items', { items, message });
+        }
+        res.render('items', { items });
+      })
       .catch(err => res.status(500).json({ message: err }));
   }
 });
 
+// Update this to render
 app.get('/item/:id', (req, res) => {
   const { id } = req.params;
 
@@ -89,12 +129,12 @@ app.get('/item/:id', (req, res) => {
     .catch(err => res.status(404).json({ message: `Item with id ${id} not found` }));
 });
 
-
+// Category names not displaying
 app.get('/categories', (req, res) => {
   // res.send('This is categories');
   store.getCategories()
   .then(categories => {
-    res.json(categories);
+    res./*json(categories);*/render('categories', {categories});
   })
   .catch(err => {
     res.status(500).json({message: err});
