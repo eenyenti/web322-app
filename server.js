@@ -51,15 +51,42 @@ app.use((req, res, next) => {
 });
 
 
-app.get('/shop', (req, res) => {
-  // res.send('This is shopping');
-  store.getPublishedItems()
-  .then(publishedItems => {
-    res.json(publishedItems);
-  })
-  .catch(err => {
-    res.status(500).json({message: err});
-  });
+// app.get('/shop', (req, res) => {
+//   // res.send('This is shopping');
+//   store.getPublishedItems()
+//   .then(publishedItems => {
+//     res.json(publishedItems);
+//   })
+//   .catch(err => {
+//     res.status(500).json({message: err});
+//   });
+// });
+
+app.get('/shop', async (req, res) => {
+  try {
+      // Fetch categories
+      const categories = await store.getCategories();
+      
+      // Determine if filtering by category
+      let publishedItems;
+      if (req.query.category) {
+          publishedItems = await store.getPublishedItemsByCategory(req.query.category);
+      } else {
+          publishedItems = await store.getPublishedItems();
+      }
+
+      // Sanitize the description of each item
+      publishedItems.forEach(item => {
+          item.sanitizedBody = sanitizeInput(item.body);
+      });
+
+      res.render('shop', { 
+          items: publishedItems, categories, selectedCategory: req.query.category || null
+      });
+
+  } catch (err) {
+      res.render('shop', {items: [], categories: [], message: "No results found."});
+  }
 });
 
 app.get('/items', (req, res) => {
@@ -129,7 +156,6 @@ app.get('/item/:id', (req, res) => {
     .catch(err => res.status(404).json({ message: `Item with id ${id} not found` }));
 });
 
-// Category names not displaying
 app.get('/categories', (req, res) => {
   // res.send('This is categories');
   store.getCategories()
@@ -196,16 +222,43 @@ app.post("/items/add", upload.single("featureImage"), async (req, res) => {
     processItem("");
   }
   
-  function processItem(imageUrl){
+  function processItem(imageUrl) {
     req.body.featureImage = imageUrl;
+
+    // **Sanitize user input before storing it**
+    const sanitizedTitle = sanitizeInput(req.body.title);
+    const sanitizedDescription = sanitizeInput(req.body.body);
+    const sanitizedCategory = sanitizeInput(req.body.category);
+    const sanitizedPrice = sanitizeInput(req.body.price);
     
-    // TODO: Process the req.body and add it as a new Item before redirecting to /items
-    store.addItem(req.body)
-    .then(() => res.redirect("/items"))
-    .catch((err) => res.status(500).send("Your add items don't work buddy"))
-} 
+    // Creating a new item object with sanitized values
+    const newItem = {
+        title: sanitizedTitle,
+        body: sanitizedDescription,
+        category: sanitizedCategory,
+        price: sanitizedPrice,
+        published: req.body.published ? true : false
+    };
+
+    store.addItem(newItem)
+      .then(() => res.redirect("/items"))
+      .catch((err) => res.status(500).send("Your add items don't work buddy"));
+  }
 
 });
+
+/********************************************************************************/
+
+// Adding sanitize content
+
+const sanitizeHtml = require('sanitize-html');
+
+function sanitizeInput(input) {
+    return sanitizeHtml(input, {
+        allowedTags: [],
+        allowedAttributes: {}
+    });
+}
 
 /********************************************************************************/
 

@@ -86,6 +86,19 @@ function getItemById(id) {
     }
 }
 
+function getPublishedItemsByCategory(category) {
+    return new Promise((resolve, reject) => {
+        const filteredItems = items.filter(item => 
+            item.published === true && item.category == category
+        );
+
+        if (filteredItems.length > 0) {
+            resolve(filteredItems);
+        } else {
+            reject("No published items in this category.");
+        }
+    });
+}
 
 module.exports = 
 {
@@ -96,5 +109,6 @@ module.exports =
     addItem,
     getItemsByCategory,
     getItemsByMinDate,
-    getItemById
+    getItemById,
+    getPublishedItemsByCategory
 }
